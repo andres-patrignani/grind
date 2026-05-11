@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>GRIND</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800;900&family=Barlow:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0C0C0C;
+  --s1:#181818;
+  --s2:#222;
+  --br:#2E2E2E;
+  --acc:#FF5200;
+  --acc2:rgba(255,82,0,.14);
+  --tx:#EFEFEF;
+  --tm:#777;
+  --td:#555;
+  --ok:#22C55E;
+  --fd:\'Barlow Condensed\',sans-serif;
+  --fb:\'Barlow\',sans-serif;
+  --fm:\'Share Tech Mono\',monospace;
+  --sb:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--fb);overscroll-behavior:none;-webkit-text-size-adjust:100%}
+body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height:100dvh;min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--bg);padding:14px 18px 0;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--br)}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.logo{font-family:var(--fd);font-size:26px;font-weight:900;letter-spacing:5px;color:var(--acc)}
+.logo span{color:var(--tm);font-size:13px;font-weight:500;letter-spacing:1px;margin-left:8px;vertical-align:middle}
+.gbtn{width:44px;height:44px;background:var(--s1);border:1px solid var(--br);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;font-size:19px;color:var(--tm)}
+.tabs{display:flex}
+.tab{flex:1;padding:10px 0 13px;text-align:center;font-family:var(--fd);font-size:14px;font-weight:800;letter-spacing:3px;color:var(--tm);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;touch-action:manipulation;user-select:none}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc)}
+
+/* VIEWS */
+.view{display:none;flex:1;overflow-y:auto;padding:18px 16px calc(28px + var(--sb))}
+.view.on{display:block}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--br);border-radius:2px}
+
+/* SEARCH */
+.srch-wrap{position:relative;margin-bottom:6px}
+.srch{width:100%;background:var(--s1);border:2px solid var(--br);border-radius:14px;padding:16px 50px 16px 18px;font-family:var(--fb);font-size:18px;color:var(--tx);outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
+.srch::placeholder{color:var(--tm)}
+.srch:focus{border-color:var(--acc)}
+.srch-ico{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--tm);pointer-events:none}
+.dd{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--s1);border:1px solid var(--br);border-radius:14px;overflow:hidden;z-index:200;max-height:300px;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.55)}
+.ddi{padding:15px 18px;cursor:pointer;touch-action:manipulation;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--br)}
+.ddi:last-child{border-bottom:none}
+.ddi:active{background:var(--s2)}
+.ddi-n{font-size:17px;font-weight:500;flex:1}
+.ddi-c{font-size:11px;color:var(--tm);text-transform:uppercase;letter-spacing:1.5px;margin-left:10px;white-space:nowrap}
+.dda{padding:15px 18px;cursor:pointer;touch-action:manipulation;display:flex;align-items:center;gap:10px;color:var(--acc);font-weight:600;font-size:16px}
+.dda:active{background:var(--acc2)}
+
+/* FORM */
+.ex-hdr{margin:22px 0 20px;padding-bottom:16px;border-bottom:1px solid var(--br)}
+.ex-nm{font-family:var(--fd);font-size:28px;font-weight:900;letter-spacing:.5px;line-height:1.1;margin-bottom:6px}
+.ex-meta{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.ex-cat{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--acc);font-weight:700}
+.ex-last{font-size:12px;color:var(--tm)}
+
+/* STEPPERS */
+.fld{margin-bottom:18px}
+.flbl{font-family:var(--fd);font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--tm);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.funit{font-size:10px;font-weight:600;color:var(--td);letter-spacing:1px}
+.stpr{display:flex;align-items:stretch;gap:8px;height:66px}
+.sbtn{flex:0 0 66px;background:var(--s1);border:1px solid var(--br);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:300;color:var(--tx);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .1s,border-color .1s;user-select:none;-webkit-user-select:none}
+.sbtn:active{background:var(--s2);border-color:var(--acc)}
+.sval{flex:1;background:var(--s1);border:2px solid var(--br);border-radius:13px;font-family:var(--fm);font-size:28px;color:var(--tx);text-align:center;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;-moz-appearance:textfield;appearance:textfield;outline:none;transition:border-color .15s;width:100%;padding:0 8px}
+.sval:focus{border-color:var(--acc);background:var(--s2)}
+.sval::-webkit-inner-spin-button,.sval::-webkit-outer-spin-button{-webkit-appearance:none}
+
+/* VOLUME */
+.vol-card{background:var(--acc2);border:1px solid rgba(255,82,0,.25);border-radius:13px;padding:14px 18px;margin:4px 0 22px;display:flex;justify-content:space-between;align-items:center}
+.vol-lbl{font-family:var(--fd);font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--acc)}
+.vol-val{font-family:var(--fm);font-size:22px;color:var(--tx)}
+
+/* MAX TOGGLE */
+.mx-sec{margin-bottom:22px}
+.mx-tog{display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;padding:6px 0}
+.tog-tr{width:46px;height:27px;background:var(--s2);border-radius:14px;position:relative;transition:background .2s;border:1px solid var(--br);flex-shrink:0}
+.tog-tr.on{background:var(--acc);border-color:var(--acc)}
+.tog-th{position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:transform .2s}
+.tog-tr.on .tog-th{transform:translateX(19px)}
+.tog-lbl{font-family:var(--fd);font-size:12px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--td)}
+
+/* LOG BUTTON */
+.logbtn{width:100%;background:var(--acc);color:#fff;border:none;border-radius:16px;padding:22px;font-family:var(--fd);font-size:21px;font-weight:900;letter-spacing:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:opacity .1s,transform .1s,background .2s;margin-bottom:10px}
+.logbtn:active{opacity:.88;transform:scale(.98)}
+.logbtn:disabled{opacity:.3}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(20px + var(--sb));left:50%;transform:translateX(-50%) translateY(90px);background:var(--ok);color:#fff;padding:13px 26px;border-radius:100px;font-family:var(--fd);font-size:15px;font-weight:800;letter-spacing:2.5px;z-index:1000;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:56px 20px;color:var(--tm)}
+.e-ico{font-size:44px;margin-bottom:14px}
+.e-ttl{font-family:var(--fd);font-size:20px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;color:var(--td)}
+.e-sub{font-size:14px;line-height:1.6;color:var(--tm)}
+
+/* HISTORY */
+.wk-grp{margin-bottom:26px}
+.wk-lbl{font-family:var(--fd);font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--tm);margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--br);display:flex;justify-content:space-between;align-items:center}
+.wk-vol{color:var(--acc);font-family:var(--fm);font-size:13px;letter-spacing:0}
+.sc{background:var(--s1);border:1px solid var(--br);border-radius:13px;padding:15px 16px;margin-bottom:10px;position:relative;overflow:hidden}
+.sc::before{content:\'\';position:absolute;left:0;top:0;bottom:0;width:3px}
+.sc.cat-arms::before{background:#60A5FA}
+.sc.cat-legs::before{background:#34D399}
+.sc.cat-core::before{background:#FBBF24}
+.sc.cat-crossfit::before{background:var(--acc)}
+.sc-nm{font-family:var(--fd);font-size:19px;font-weight:900;letter-spacing:.5px;margin-bottom:3px}
+.sc-dt{font-size:11px;color:var(--tm);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.sc-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.sp{background:var(--s2);border-radius:8px;padding:7px 12px;display:flex;flex-direction:column;align-items:center;min-width:52px}
+.sp-v{font-family:var(--fm);font-size:18px;color:var(--tx)}
+.sp-l{font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:1.5px;margin-top:1px}
+.sc-bot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.sc-vol{font-size:12px;color:var(--tm)}
+.sc-vol span{color:var(--acc);font-family:var(--fm);font-size:14px}
+.sc-max{font-size:11px;color:var(--td)}
+.sc-max b{color:var(--tx);font-weight:600}
+.sc-del{font-size:13px;color:var(--td);cursor:pointer;touch-action:manipulation;padding:4px 8px;border-radius:6px;background:transparent;border:none;color:var(--td)}
+.sc-del:active{color:#ef4444}
+
+/* MODALS */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s}
+.mo.on{opacity:1;pointer-events:all}
+.mb{background:var(--s1);border-radius:20px 20px 0 0;padding:22px 20px calc(22px + var(--sb));width:100%;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.mo.on .mb{transform:translateY(0)}
+.mh{width:38px;height:4px;background:var(--br);border-radius:2px;margin:0 auto 20px}
+.mt{font-family:var(--fd);font-size:20px;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:18px}
+.mi{width:100%;background:var(--s2);border:2px solid var(--br);border-radius:12px;padding:16px;font-size:18px;font-family:var(--fb);color:var(--tx);outline:none;margin-bottom:12px;-webkit-appearance:none}
+.mi:focus{border-color:var(--acc)}
+.msel{width:100%;background:var(--s2);border:2px solid var(--br);border-radius:12px;padding:16px;font-size:16px;font-family:var(--fb);color:var(--tx);outline:none;margin-bottom:18px;-webkit-appearance:none;appearance:none}
+.mbtn{width:100%;background:var(--acc);color:#fff;border:none;border-radius:12px;padding:18px;font-family:var(--fd);font-size:17px;font-weight:900;letter-spacing:3px;cursor:pointer;touch-action:manipulation;margin-bottom:10px}
+.mcan{width:100%;background:transparent;color:var(--tm);border:1px solid var(--br);border-radius:12px;padding:16px;font-family:var(--fd);font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;touch-action:manipulation}
+
+/* SETTINGS */
+.srow{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--br)}
+.srow:last-child{border-bottom:none}
+.slbl{font-size:15px;font-weight:500}
+.sdsc{font-size:12px;color:var(--tm);margin-top:2px}
+.spill{background:var(--s2);border:1px solid var(--br);border-radius:8px;padding:0 14px;height:40px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:13px;font-weight:800;letter-spacing:1.5px;color:var(--tm);cursor:pointer;touch-action:manipulation;transition:border-color .15s,color .15s;white-space:nowrap}
+.spill.on{border-color:var(--acc);color:var(--acc)}
+.spill-g{display:flex;gap:6px}
+.danger{color:#ef4444 !important;border-color:#ef444444 !important}
+
+/* HIGHLIGHT MATCH */
+.hl{color:var(--acc)}
+
+/* PROGRESS DOT */
+.pr-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.pr-bar{flex:1;height:3px;background:var(--s2);border-radius:2px;overflow:hidden}
+.pr-fill{height:100%;background:var(--acc);border-radius:2px;transition:width .4s}
+.pr-lbl{font-size:10px;color:var(--tm);white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo">GRIND <span>GYM TRACKER</span></div>
+    <div class="gbtn" id="settBtn">&#9881;</div>
+  </div>
+  <div class="tabs">
+    <div class="tab on" data-tab="log">&#9654; LOG</div>
+    <div class="tab" data-tab="hist">&#128203; HISTORY</div>
+  </div>
+</div>
+
+<!-- LOG VIEW -->
+<div class="view on" id="view-log">
+  <div class="srch-wrap">
+    <input type="text" class="srch" id="srchIn" placeholder="Search exercise..." autocomplete="off" spellcheck="false">
+    <span class="srch-ico">&#128269;</span>
+    <div class="dd" id="dd" style="display:none"></div>
+  </div>
+
+  <div id="exForm" style="display:none">
+    <div class="ex-hdr">
+      <div class="ex-nm" id="exNm"></div>
+      <div class="ex-meta">
+        <div class="ex-cat" id="exCt"></div>
+        <div class="ex-last" id="exLt"></div>
+      </div>
+    </div>
+
+    <div class="fld">
+      <div class="flbl"><span>WEIGHT</span><span class="funit" id="wUnit">LBS</span></div>
+      <div class="stpr">
+        <div class="sbtn" id="wDec">&#8722;</div>
+        <input type="number" class="sval" id="wVal" value="45" min="0" inputmode="decimal" step="5">
+        <div class="sbtn" id="wInc">+</div>
+      </div>
+    </div>
+
+    <div class="fld">
+      <div class="flbl">REPS</div>
+      <div class="stpr">
+        <div class="sbtn" id="rDec">&#8722;</div>
+        <input type="number" class="sval" id="rVal" value="10" min="1" inputmode="numeric" step="1">
+        <div class="sbtn" id="rInc">+</div>
+      </div>
+    </div>
+
+    <div class="fld">
+      <div class="flbl">SETS</div>
+      <div class="stpr">
+        <div class="sbtn" id="sDec">&#8722;</div>
+        <input type="number" class="sval" id="sVal" value="3" min="1" inputmode="numeric" step="1">
+        <div class="sbtn" id="sInc">+</div>
+      </div>
+    </div>
+
+    <div class="vol-card">
+      <div class="vol-lbl">VOLUME</div>
+      <div class="vol-val" id="volVal">1,350</div>
+    </div>
+
+    <div class="mx-sec">
+      <div class="mx-tog" id="mxTog">
+        <div class="tog-tr" id="mxTr"><div class="tog-th"></div></div>
+        <div class="tog-lbl">LOG MAX WEIGHT (1RM)</div>
+      </div>
+      <div id="mxFld" style="display:none">
+        <div class="fld">
+          <div class="flbl"><span>MAX WEIGHT / 1RM</span><span class="funit" id="mxUnit">LBS</span></div>
+          <div class="stpr">
+            <div class="sbtn" id="mxDec">&#8722;</div>
+            <input type="number" class="sval" id="mxVal" value="45" min="0" inputmode="decimal" step="5">
+            <div class="sbtn" id="mxInc">+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="logbtn" id="logBtn">LOG SET</button>
+  </div>
+
+  <div id="noEx" class="empty" style="margin-top:36px">
+    <div class="e-ico">&#127947;</div>
+    <div class="e-ttl">SELECT AN EXERCISE</div>
+    <div class="e-sub">Type a few letters to search,<br>or browse all exercises</div>
+  </div>
+</div>
+
+<!-- HISTORY VIEW -->
+<div class="view" id="view-hist">
+  <div id="histContent"></div>
+</div>
+
+<!-- ADD EXERCISE MODAL -->
+<div class="mo" id="addMo">
+  <div class="mb">
+    <div class="mh"></div>
+    <div class="mt">ADD EXERCISE</div>
+    <input type="text" class="mi" id="addNm" placeholder="Exercise name..." autocapitalize="words">
+    <select class="msel" id="addCat">
+      <option value="arms">&#128170; Arms / Upper Body</option>
+      <option value="legs">&#127939; Legs / Lower Body</option>
+      <option value="core">&#129354; Core</option>
+      <option value="crossfit">&#127937; CrossFit / Free Weights</option>
+    </select>
+    <button class="mbtn" id="addSave">ADD EXERCISE</button>
+    <button class="mcan" id="addCanc">CANCEL</button>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="mo" id="settMo">
+  <div class="mb">
+    <div class="mh"></div>
+    <div class="mt">SETTINGS</div>
+    <div class="srow">
+      <div><div class="slbl">Weight unit</div><div class="sdsc">Pounds or Kilograms</div></div>
+      <div class="spill-g">
+        <div class="spill on" id="uLbs">LBS</div>
+        <div class="spill" id="uKg">KG</div>
+      </div>
+    </div>
+    <div class="srow">
+      <div><div class="slbl">Weight step</div><div class="sdsc">How much +/&#8722; adjusts weight</div></div>
+      <div class="spill-g">
+        <div class="spill" id="st25">2.5</div>
+        <div class="spill on" id="st5">5</div>
+        <div class="spill" id="st10">10</div>
+      </div>
+    </div>
+    <div class="srow">
+      <div><div class="slbl">Clear session history</div><div class="sdsc">Removes all logged sessions</div></div>
+      <div class="spill danger" id="clrBtn">CLEAR</div>
+    </div>
+    <br>
+    <button class="mcan" id="settClose">CLOSE</button>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="mo" id="delMo">
+  <div class="mb">
+    <div class="mh"></div>
+    <div class="mt">DELETE SESSION?</div>
+    <p style="font-size:15px;color:var(--tm);margin-bottom:20px;line-height:1.5">This session will be permanently removed from your history.</p>
+    <button class="mbtn" id="delConf" style="background:#ef4444">DELETE</button>
+    <button class="mcan" id="delCanc">CANCEL</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">&#10003; SET LOGGED</div>
+
+<script>
+/* ======================================================
+   DATABASE — exercises
+====================================================== */
+const EX = [
+  // Arms / Upper Body
+  {id:'chest-press',name:'Chest Press Machine',cat:'arms'},
+  {id:'incline-press',name:'Incline Chest Press Machine',cat:'arms'},
+  {id:'pec-deck',name:'Pec Deck / Chest Fly',cat:'arms'},
+  {id:'cable-fly',name:'Cable Fly',cat:'arms'},
+  {id:'lat-pull',name:'Lat Pulldown',cat:'arms'},
+  {id:'seated-row',name:'Seated Row',cat:'arms'},
+  {id:'cable-row',name:'Cable Row',cat:'arms'},
+  {id:'bicep-machine',name:'Bicep Curl Machine',cat:'arms'},
+  {id:'preacher-curl',name:'Preacher Curl Machine',cat:'arms'},
+  {id:'cable-curl',name:'Cable Curl',cat:'arms'},
+  {id:'hammer-curl',name:'Hammer Curl',cat:'arms'},
+  {id:'tricep-push',name:'Tricep Pushdown',cat:'arms'},
+  {id:'tricep-dip',name:'Tricep Dip Machine',cat:'arms'},
+  {id:'overhead-tri',name:'Overhead Tricep Extension',cat:'arms'},
+  {id:'shoulder-press',name:'Shoulder Press Machine',cat:'arms'},
+  {id:'lat-raise',name:'Lateral Raise Machine',cat:'arms'},
+  {id:'rear-delt',name:'Rear Delt Fly Machine',cat:'arms'},
+  {id:'assisted-pullup',name:'Assisted Pull-up Machine',cat:'arms'},
+  {id:'assisted-dip',name:'Assisted Dip Machine',cat:'arms'},
+  {id:'chest-press-cb',name:'Cable Chest Press',cat:'arms'},
+  // Legs / Lower Body
+  {id:'leg-press',name:'Leg Press',cat:'legs'},
+  {id:'leg-ext',name:'Leg Extension Machine',cat:'legs'},
+  {id:'leg-curl',name:'Leg Curl Machine',cat:'legs'},
+  {id:'seated-leg-curl',name:'Seated Leg Curl Machine',cat:'legs'},
+  {id:'calf-raise',name:'Calf Raise Machine',cat:'legs'},
+  {id:'seated-calf',name:'Seated Calf Raise Machine',cat:'legs'},
+  {id:'hip-abductor',name:'Hip Abductor Machine',cat:'legs'},
+  {id:'hip-adductor',name:'Hip Adductor Machine',cat:'legs'},
+  {id:'glute-kick',name:'Glute Kickback Machine',cat:'legs'},
+  {id:'hack-squat',name:'Hack Squat Machine',cat:'legs'},
+  {id:'smith-squat',name:'Smith Machine Squat',cat:'legs'},
+  {id:'barbell-squat',name:'Barbell Squat',cat:'legs'},
+  {id:'rdl',name:'Romanian Deadlift',cat:'legs'},
+  {id:'db-lunges',name:'Dumbbell Lunges',cat:'legs'},
+  {id:'step-ups',name:'Step-ups',cat:'legs'},
+  {id:'hip-thrust',name:'Hip Thrust Machine',cat:'legs'},
+  {id:'pendulum-squat',name:'Pendulum Squat Machine',cat:'legs'},
+  // Core
+  {id:'ab-crunch',name:'Ab Crunch Machine',cat:'core'},
+  {id:'cable-crunch',name:'Cable Crunch',cat:'core'},
+  {id:'rotary-torso',name:'Rotary Torso Machine',cat:'core'},
+  {id:'back-ext',name:'Back Extension Machine',cat:'core'},
+  {id:'hyperext',name:'Hyperextension',cat:'core'},
+  {id:'plank',name:'Plank',cat:'core'},
+  {id:'hang-leg',name:'Hanging Leg Raise',cat:'core'},
+  {id:'ab-wheel',name:'Ab Wheel Rollout',cat:'core'},
+  {id:'russian-twist',name:'Russian Twist',cat:'core'},
+  {id:'pallof',name:'Pallof Press',cat:'core'},
+  {id:'cable-woodchop',name:'Cable Woodchop',cat:'core'},
+  // CrossFit / Free Weights
+  {id:'wall-balls',name:'Wall Balls',cat:'crossfit'},
+  {id:'box-jumps',name:'Box Jumps',cat:'crossfit'},
+  {id:'kb-swing',name:'Kettlebell Swing',cat:'crossfit'},
+  {id:'kb-goblet',name:'Kettlebell Goblet Squat',cat:'crossfit'},
+  {id:'kb-clean',name:'Kettlebell Clean',cat:'crossfit'},
+  {id:'pull-ups',name:'Pull-ups',cat:'crossfit'},
+  {id:'push-ups',name:'Push-ups',cat:'crossfit'},
+  {id:'burpees',name:'Burpees',cat:'crossfit'},
+  {id:'deadlift',name:'Deadlift (Barbell)',cat:'crossfit'},
+  {id:'bench-press',name:'Bench Press (Barbell)',cat:'crossfit'},
+  {id:'ohp',name:'Overhead Press (Barbell)',cat:'crossfit'},
+  {id:'db-shpress',name:'Dumbbell Shoulder Press',cat:'crossfit'},
+  {id:'db-row',name:'Dumbbell Row',cat:'crossfit'},
+  {id:'thruster',name:'Thruster',cat:'crossfit'},
+  {id:'power-clean',name:'Power Clean',cat:'crossfit'},
+  {id:'double-unders',name:'Double Unders',cat:'crossfit'},
+  {id:'rope-climb',name:'Rope Climb',cat:'crossfit'},
+  {id:'muscle-ups',name:'Muscle-ups',cat:'crossfit'},
+  {id:'toes-bar',name:'Toes to Bar',cat:'crossfit'},
+  {id:'ghd-situp',name:'GHD Sit-up',cat:'crossfit'},
+  {id:'sumo-dl',name:'Sumo Deadlift',cat:'crossfit'},
+  {id:'front-sq',name:'Front Squat',cat:'crossfit'},
+  {id:'push-press',name:'Push Press',cat:'crossfit'},
+  {id:'clean-jerk',name:'Clean & Jerk',cat:'crossfit'},
+  {id:'snatch',name:'Snatch',cat:'crossfit'},
+  {id:'farmers-carry',name:'Farmer\'s Carry',cat:'crossfit'},
+];
+
+const CAT_LBL = {arms:'Arms / Upper Body',legs:'Legs / Lower Body',core:'Core',crossfit:'CrossFit / Free Weights'};
+
+/* ======================================================
+   STORAGE
+====================================================== */
+const DB = {
+  exs(){
+    const s=localStorage.getItem('gt_ex');
+    if(!s){localStorage.setItem('gt_ex',JSON.stringify(EX));return[...EX]}
+    const st=JSON.parse(s),ids=new Set(st.map(e=>e.id)),m=[...st];
+    for(const d of EX) if(!ids.has(d.id)) m.push(d);
+    return m;
+  },
+  addEx(ex){const a=this.exs();a.push(ex);localStorage.setItem('gt_ex',JSON.stringify(a))},
+  sess(){const s=localStorage.getItem('gt_sess');return s?JSON.parse(s):[]},
+  addSess(s){const a=this.sess();a.push(s);localStorage.setItem('gt_sess',JSON.stringify(a))},
+  delSess(id){const a=this.sess().filter(s=>s.id!==id);localStorage.setItem('gt_sess',JSON.stringify(a))},
+  lu(){const s=localStorage.getItem('gt_lu');return s?JSON.parse(s):{}},
+  setLu(id,d){const lu=this.lu();lu[id]=d;localStorage.setItem('gt_lu',JSON.stringify(lu))},
+  cfg(){const s=localStorage.getItem('gt_cfg');return s?JSON.parse(s):{unit:'lbs',step:5}},
+  saveCfg(c){localStorage.setItem('gt_cfg',JSON.stringify(c))},
+  clearSess(){localStorage.removeItem('gt_sess');localStorage.removeItem('gt_lu')}
+};
+
+/* ======================================================
+   STATE
+====================================================== */
+let sel=null, showMax=false, cfg=DB.cfg(), delTarget=null;
+
+function fw(n){return Number.isInteger(n)?n:parseFloat(n.toFixed(1))}
+
+/* ======================================================
+   TABS
+====================================================== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    document.getElementById('view-'+t.dataset.tab).classList.add('on');
+    if(t.dataset.tab==='hist') renderHist();
+    hide('dd');
+  });
+});
+
+/* ======================================================
+   SEARCH / DROPDOWN
+====================================================== */
+const srch=g('srchIn'),dd=g('dd');
+
+srch.addEventListener('input',()=>{
+  const q=srch.value.trim().toLowerCase();
+  if(!q){hide('dd');return}
+  renderDD(q);
+});
+srch.addEventListener('focus',()=>{const q=srch.value.trim().toLowerCase();if(q)renderDD(q)});
+document.addEventListener('click',e=>{if(!e.target.closest('.srch-wrap'))hide('dd')});
+
+function renderDD(q){
+  const exs=DB.exs(),m=exs.filter(e=>e.name.toLowerCase().includes(q)).slice(0,9);
+  let h='';
+  for(const e of m){
+    h+=`<div class="ddi" data-id="${e.id}">
+      <span class="ddi-n">${hl(e.name,q)}</span>
+      <span class="ddi-c">${CAT_LBL[e.cat]||e.cat}</span>
+    </div>`;
+  }
+  const exact=exs.some(e=>e.name.toLowerCase()===q);
+  if(!exact){
+    h+=`<div class="dda" id="ddAdd">+ Add &ldquo;${srch.value}&rdquo;</div>`;
+  }
+  dd.innerHTML=h||`<div class="dda" id="ddAdd">+ Add &ldquo;${srch.value}&rdquo;</div>`;
+  show('dd');
+  dd.querySelectorAll('.ddi').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const ex=DB.exs().find(e=>e.id===el.dataset.id);
+      if(ex) selectEx(ex);
+    });
+  });
+  const da=g('ddAdd');
+  if(da) da.addEventListener('click',()=>openAdd(srch.value));
+}
+
+function hl(txt,q){
+  const i=txt.toLowerCase().indexOf(q);
+  if(i<0)return txt;
+  return txt.slice(0,i)+`<span class="hl">${txt.slice(i,i+q.length)}</span>`+txt.slice(i+q.length);
+}
+
+/* ======================================================
+   SELECT EXERCISE
+====================================================== */
+function selectEx(ex){
+  sel=ex;
+  srch.value=ex.name;
+  hide('dd');
+  srch.blur();
+
+  const lu=DB.lu()[ex.id];
+  if(lu){
+    g('wVal').value=lu.w;
+    g('rVal').value=lu.r;
+    g('sVal').value=lu.s;
+    g('mxVal').value=lu.mx||lu.w;
+    const d=new Date(lu.ts);
+    const fmt=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    g('exLt').textContent='Last: '+fmt;
+  } else {
+    g('wVal').value=cfg.unit==='kg'?20:45;
+    g('rVal').value=10;
+    g('sVal').value=3;
+    g('mxVal').value=cfg.unit==='kg'?20:45;
+    g('exLt').textContent='No previous record';
+  }
+
+  g('exNm').textContent=ex.name;
+  g('exCt').textContent=CAT_LBL[ex.cat]||ex.cat;
+  g('wUnit').textContent=cfg.unit.toUpperCase();
+  g('mxUnit').textContent=cfg.unit.toUpperCase();
+
+  // Reset max toggle
+  showMax=false;
+  g('mxTr').classList.remove('on');
+  hide('mxFld');
+
+  updVol();
+  hide('noEx');
+  show('exForm');
+}
+
+/* ======================================================
+   STEPPERS
+====================================================== */
+function mkStep(decId,incId,inId,isWeight){
+  g(decId).addEventListener('click',()=>{
+    const inp=g(inId);
+    const step=isWeight?cfg.step:1;
+    const min=isWeight?0:1;
+    inp.value=Math.max(min,fw(parseFloat(inp.value||0)-step));
+    if(!isWeight||inId!=='mxVal') updVol();
+  });
+  g(incId).addEventListener('click',()=>{
+    const inp=g(inId);
+    const step=isWeight?cfg.step:1;
+    inp.value=fw(parseFloat(inp.value||0)+step);
+    if(!isWeight||inId!=='mxVal') updVol();
+  });
+  g(inId).addEventListener('input',()=>{if(inId!=='mxVal')updVol()});
+}
+
+mkStep('wDec','wInc','wVal',true);
+mkStep('rDec','rInc','rVal',false);
+mkStep('sDec','sInc','sVal',false);
+mkStep('mxDec','mxInc','mxVal',true);
+
+function updVol(){
+  const w=parseFloat(g('wVal').value)||0;
+  const r=parseInt(g('rVal').value)||0;
+  const s=parseInt(g('sVal').value)||0;
+  const v=w*r*s;
+  g('volVal').textContent=v.toLocaleString()+' '+cfg.unit;
+}
+
+/* ======================================================
+   MAX TOGGLE
+====================================================== */
+g('mxTog').addEventListener('click',()=>{
+  showMax=!showMax;
+  g('mxTr').classList.toggle('on',showMax);
+  g('mxFld').style.display=showMax?'block':'none';
+  if(showMax){
+    // Default max to current weight if not set
+    const cur=parseFloat(g('wVal').value)||0;
+    if(parseFloat(g('mxVal').value)===0) g('mxVal').value=cur;
+  }
+});
+
+/* ======================================================
+   LOG SESSION
+====================================================== */
+g('logBtn').addEventListener('click',()=>{
+  if(!sel) return;
+  const w=parseFloat(g('wVal').value)||0;
+  const r=parseInt(g('rVal').value)||0;
+  const s=parseInt(g('sVal').value)||0;
+  const mx=showMax?(parseFloat(g('mxVal').value)||0):null;
+
+  const sess={
+    id:Date.now().toString(),
+    eid:sel.id,
+    enm:sel.name,
+    ecat:sel.cat,
+    w,r,s,
+    mx,
+    vol:w*r*s,
+    unit:cfg.unit,
+    ts:new Date().toISOString()
+  };
+  DB.addSess(sess);
+  DB.setLu(sel.id,{w,r,s,mx,ts:sess.ts});
+
+  const btn=g('logBtn');
+  btn.textContent='&#10003; SAVED!';
+  btn.style.background='var(--ok)';
+  setTimeout(()=>{btn.textContent='LOG SET';btn.style.background='';},1400);
+  toast('&#10003; SET LOGGED');
+});
+
+/* ======================================================
+   HISTORY
+====================================================== */
+function renderHist(){
+  const sessions=DB.sess().slice().reverse();
+  const c=g('histContent');
+  if(!sessions.length){
+    c.innerHTML=`<div class="empty"><div class="e-ico">&#128203;</div><div class="e-ttl">NO HISTORY YET</div><div class="e-sub">Log your first session<br>to see it here</div></div>`;
+    return;
+  }
+
+  // Group by ISO week
+  const weeks={};
+  for(const s of sessions){
+    const wk=weekKey(new Date(s.ts));
+    if(!weeks[wk]) weeks[wk]={k:wk,ts:s.ts,items:[]};
+    weeks[wk].items.push(s);
+  }
+
+  let html='';
+  for(const [,grp] of Object.entries(weeks)){
+    const wvol=grp.items.reduce((a,s)=>a+s.vol,0);
+    html+=`<div class="wk-grp">
+      <div class="wk-lbl">
+        <span>${weekLabel(grp.ts)}</span>
+        <span class="wk-vol">${wvol.toLocaleString()} total vol</span>
+      </div>`;
+
+    for(const s of grp.items){
+      const d=new Date(s.ts);
+      const ds=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+      const ts=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      const u=s.unit||'lbs';
+      // Compute PR: is this the max weight for this exercise?
+      const allForEx=DB.sess().filter(x=>x.eid===s.eid);
+      const maxW=Math.max(...allForEx.map(x=>x.w));
+      const isPR=s.w>=maxW&&allForEx.length>1;
+      html+=`<div class="sc cat-${s.ecat||'crossfit'}">
+        <div class="sc-nm">${s.enm.toUpperCase()}${isPR?'&nbsp;<span style="font-size:11px;color:var(--acc);background:var(--acc2);padding:2px 7px;border-radius:4px;letter-spacing:1px">PR &#9651;</span>':''}</div>
+        <div class="sc-dt">${ds} &middot; ${ts}</div>
+        <div class="sc-stats">
+          <div class="sp"><span class="sp-v">${s.s}</span><span class="sp-l">SETS</span></div>
+          <div class="sp"><span class="sp-v">${s.r}</span><span class="sp-l">REPS</span></div>
+          <div class="sp"><span class="sp-v">${fw(s.w)}</span><span class="sp-l">${u.toUpperCase()}</span></div>
+        </div>
+        <div class="sc-bot">
+          <div class="sc-vol">VOL <span>${s.vol.toLocaleString()} ${u}</span></div>
+          ${s.mx?`<div class="sc-max">1RM max: <b>${fw(s.mx)} ${u}</b></div>`:''}
+          <button class="sc-del" data-id="${s.id}">&#128465;</button>
+        </div>
+      </div>`;
+    }
+    html+='</div>';
+  }
+  c.innerHTML=html;
+
+  // Bind delete buttons
+  c.querySelectorAll('.sc-del').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      delTarget=btn.dataset.id;
+      show('delMo');
+    });
+  });
+}
+
+function weekKey(date){
+  const d=new Date(date);
+  const day=d.getDay();
+  const mon=new Date(d.getFullYear(),d.getMonth(),d.getDate()-(day===0?6:day-1));
+  return mon.getFullYear()+'-W'+String(weekNum(mon)).padStart(2,'0');
+}
+
+function weekNum(d){
+  const jan1=new Date(d.getFullYear(),0,1);
+  return Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+}
+
+function weekLabel(ts){
+  const d=new Date(ts);
+  const day=d.getDay();
+  const mon=new Date(d.getFullYear(),d.getMonth(),d.getDate()-(day===0?6:day-1));
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  const now=new Date();
+  if(weekKey(now)===weekKey(d)) return 'THIS WEEK';
+  const lw=new Date(now);lw.setDate(now.getDate()-7);
+  if(weekKey(lw)===weekKey(d)) return 'LAST WEEK';
+  const fmt=x=>x.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return `${fmt(mon)} \u2014 ${fmt(sun)}, ${mon.getFullYear()}`;
+}
+
+/* ======================================================
+   ADD EXERCISE MODAL
+====================================================== */
+function openAdd(pf=''){
+  g('addNm').value=pf;
+  show('addMo');
+  setTimeout(()=>g('addNm').focus(),320);
+}
+
+g('addSave').addEventListener('click',()=>{
+  const nm=g('addNm').value.trim();
+  if(!nm) return;
+  const ex={id:'custom-'+Date.now(),name:nm,cat:g('addCat').value,custom:true};
+  DB.addEx(ex);
+  hide('addMo');
+  selectEx(ex);
+  srch.value=nm;
+});
+g('addCanc').addEventListener('click',()=>hide('addMo'));
+
+/* ======================================================
+   DELETE CONFIRM
+====================================================== */
+g('delConf').addEventListener('click',()=>{
+  if(delTarget) DB.delSess(delTarget);
+  delTarget=null;
+  hide('delMo');
+  renderHist();
+  toast('&#128465; SESSION REMOVED');
+});
+g('delCanc').addEventListener('click',()=>hide('delMo'));
+
+/* ======================================================
+   SETTINGS
+====================================================== */
+g('settBtn').addEventListener('click',()=>{
+  show('settMo');
+  updCfgUI();
+});
+g('settClose').addEventListener('click',()=>hide('settMo'));
+
+function updCfgUI(){
+  g('uLbs').classList.toggle('on',cfg.unit==='lbs');
+  g('uKg').classList.toggle('on',cfg.unit==='kg');
+  g('st25').classList.toggle('on',cfg.step===2.5);
+  g('st5').classList.toggle('on',cfg.step===5);
+  g('st10').classList.toggle('on',cfg.step===10);
+}
+
+g('uLbs').addEventListener('click',()=>{cfg.unit='lbs';DB.saveCfg(cfg);updCfgUI();if(sel)selectEx(sel)});
+g('uKg').addEventListener('click',()=>{cfg.unit='kg';DB.saveCfg(cfg);updCfgUI();if(sel)selectEx(sel)});
+g('st25').addEventListener('click',()=>{cfg.step=2.5;DB.saveCfg(cfg);updCfgUI()});
+g('st5').addEventListener('click',()=>{cfg.step=5;DB.saveCfg(cfg);updCfgUI()});
+g('st10').addEventListener('click',()=>{cfg.step=10;DB.saveCfg(cfg);updCfgUI()});
+
+g('clrBtn').addEventListener('click',()=>{
+  if(confirm('Clear all session history? This cannot be undone.')){
+    DB.clearSess();
+    hide('settMo');
+    toast('&#128465; HISTORY CLEARED');
+  }
+});
+
+// Close modals on overlay tap
+['addMo','settMo','delMo'].forEach(id=>{
+  g(id).addEventListener('click',e=>{if(e.target===g(id))hide(id)});
+});
+
+/* ======================================================
+   TOAST
+====================================================== */
+let _tt;
+function toast(msg){
+  const t=g('toast');
+  t.innerHTML=msg;
+  t.classList.add('on');
+  clearTimeout(_tt);
+  _tt=setTimeout(()=>t.classList.remove('on'),2200);
+}
+
+/* ======================================================
+   UTILS
+====================================================== */
+function g(id){return document.getElementById(id)}
+function show(id){const el=g(id);if(el){if(el.classList.contains('mo'))el.classList.add('on');else el.style.display=''}}
+function hide(id){const el=g(id);if(el){if(el.classList.contains('mo'))el.classList.remove('on');else el.style.display='none'}}
+</script>
+</body>
+</html>
