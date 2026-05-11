@@ -155,6 +155,14 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 .spill-g{display:flex;gap:6px}
 .danger{color:#ef4444 !important;border-color:#ef444444 !important}
 
+/* RECENT PILLS */
+.rec-wrap{margin:10px 0 6px}
+.rec-lbl{font-family:var(--fd);font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--td);margin-bottom:8px}
+.rec-row{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+.rec-row::-webkit-scrollbar{display:none}
+.rpill{flex-shrink:0;background:var(--s1);border:1px solid var(--br);border-radius:20px;padding:9px 15px;font-family:var(--fd);font-size:14px;font-weight:700;letter-spacing:.5px;color:var(--tm);cursor:pointer;touch-action:manipulation;transition:border-color .15s,color .15s,background .15s;white-space:nowrap}
+.rpill:active{border-color:var(--acc);color:var(--acc);background:var(--acc2)}
+
 /* HIGHLIGHT MATCH */
 .hl{color:var(--acc)}
 
@@ -173,8 +181,8 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
     <div class="gbtn" id="settBtn">&#9881;</div>
   </div>
   <div class="tabs">
-    <div class="tab on" data-tab="log">&#9654; LOG</div>
-    <div class="tab" data-tab="hist">&#128203; HISTORY</div>
+    <div class="tab on" data-tab="log">LOG</div>
+    <div class="tab" data-tab="hist">HISTORY</div>
   </div>
 </div>
 
@@ -184,6 +192,11 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
     <input type="text" class="srch" id="srchIn" placeholder="Search exercise..." autocomplete="off" spellcheck="false">
     <span class="srch-ico">&#128269;</span>
     <div class="dd" id="dd" style="display:none"></div>
+  </div>
+
+  <div id="recWrap" class="rec-wrap" style="display:none">
+    <div class="rec-lbl">RECENT</div>
+    <div class="rec-row" id="recRow"></div>
   </div>
 
   <div id="exForm" style="display:none">
@@ -605,9 +618,9 @@ g('logBtn').addEventListener('click',()=>{
   DB.setLu(sel.id,{w,r,s,mx,ts:sess.ts});
 
   const btn=g('logBtn');
-  btn.textContent='&#10003; SAVED!';
+  btn.innerHTML='&#10003; SAVED!';
   btn.style.background='var(--ok)';
-  setTimeout(()=>{btn.textContent='LOG SET';btn.style.background='';},1400);
+  setTimeout(()=>{btn.innerHTML='LOG SET';btn.style.background='';renderRecent();},1400);
   toast('&#10003; SET LOGGED');
 });
 
@@ -756,11 +769,24 @@ g('st25').addEventListener('click',()=>{cfg.step=2.5;DB.saveCfg(cfg);updCfgUI()}
 g('st5').addEventListener('click',()=>{cfg.step=5;DB.saveCfg(cfg);updCfgUI()});
 g('st10').addEventListener('click',()=>{cfg.step=10;DB.saveCfg(cfg);updCfgUI()});
 
+let clrPending=false,clrTimer;
 g('clrBtn').addEventListener('click',()=>{
-  if(confirm('Clear all session history? This cannot be undone.')){
+  if(!clrPending){
+    clrPending=true;
+    g('clrBtn').textContent='SURE?';
+    clrTimer=setTimeout(()=>{clrPending=false;g('clrBtn').textContent='CLEAR';},3000);
+  } else {
+    clearTimeout(clrTimer);
+    clrPending=false;
+    g('clrBtn').textContent='CLEAR';
     DB.clearSess();
+    sel=null;
     hide('settMo');
-    toast('&#128465; HISTORY CLEARED');
+    hide('exForm');
+    show('noEx');
+    g('srchIn').value='';
+    renderRecent();
+    toast('History cleared');
   }
 });
 
@@ -782,11 +808,35 @@ function toast(msg){
 }
 
 /* ======================================================
+   RECENT PILLS
+====================================================== */
+function renderRecent(){
+  const sessions=DB.sess();
+  if(!sessions.length){hide('recWrap');return}
+  // Walk sessions newest-first, collect up to 5 unique exercise ids
+  const seen=new Set(),recent=[];
+  for(let i=sessions.length-1;i>=0&&recent.length<5;i--){
+    const s=sessions[i];
+    if(!seen.has(s.eid)){seen.add(s.eid);recent.push({id:s.eid,name:s.enm,cat:s.ecat})}
+  }
+  g('recRow').innerHTML=recent.map(e=>`<div class="rpill" data-id="${e.id}">${e.name}</div>`).join('');
+  g('recRow').querySelectorAll('.rpill').forEach(p=>{
+    p.addEventListener('click',()=>{
+      const ex=DB.exs().find(e=>e.id===p.dataset.id);
+      if(ex) selectEx(ex);
+    });
+  });
+  show('recWrap');
+}
+
+/* ======================================================
    UTILS
 ====================================================== */
 function g(id){return document.getElementById(id)}
 function show(id){const el=g(id);if(el){if(el.classList.contains('mo'))el.classList.add('on');else el.style.display=''}}
 function hide(id){const el=g(id);if(el){if(el.classList.contains('mo'))el.classList.remove('on');else el.style.display='none'}}
+
+renderRecent();
 </script>
 </body>
 </html>
