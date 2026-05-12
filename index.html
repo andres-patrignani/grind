@@ -310,6 +310,19 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
       </div>
     </div>
     <div class="srow">
+      <div><div class="slbl">Export history</div><div class="sdsc">Save a JSON backup file</div></div>
+      <div class="spill" id="expBtn">EXPORT</div>
+    </div>
+    <div class="srow">
+      <div><div class="slbl">Import history</div><div class="sdsc">Restore from a JSON backup</div></div>
+      <div class="spill" id="impBtn">IMPORT</div>
+    </div>
+    <input type="file" id="impFile" accept=".json" style="display:none">
+    <div class="srow">
+      <div><div class="slbl">AI progress report</div><div class="sdsc">Copy prompt + data for any AI</div></div>
+      <div class="spill" id="aiBtn">COPY</div>
+    </div>
+    <div class="srow">
       <div><div class="slbl">Clear session history</div><div class="sdsc">Removes all logged sessions</div></div>
       <div class="spill danger" id="clrBtn">CLEAR</div>
     </div>
@@ -805,6 +818,101 @@ function toast(msg){
   t.classList.add('on');
   clearTimeout(_tt);
   _tt=setTimeout(()=>t.classList.remove('on'),2200);
+}
+
+/* ======================================================
+   EXPORT / IMPORT
+====================================================== */
+g('expBtn').addEventListener('click',()=>{
+  const data={sessions:DB.sess(),lastUsed:DB.lu(),exportedAt:new Date().toISOString(),version:1};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url;a.download='grind-backup-'+date+'.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('Backup saved');
+});
+
+g('impBtn').addEventListener('click',()=>g('impFile').click());
+
+g('impFile').addEventListener('change',e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.sessions||!Array.isArray(data.sessions)) throw new Error('Invalid format');
+      const existing=DB.sess();
+      const existIds=new Set(existing.map(s=>s.id));
+      const merged=[...existing,...data.sessions.filter(s=>!existIds.has(s.id))];
+      merged.sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+      localStorage.setItem('gt_sess',JSON.stringify(merged));
+      if(data.lastUsed){
+        const lu=DB.lu();
+        localStorage.setItem('gt_lu',JSON.stringify(Object.assign({},data.lastUsed,lu)));
+      }
+      hide('settMo');
+      renderRecent();
+      toast('Imported '+data.sessions.length+' sessions');
+    } catch(err){
+      toast('Invalid backup file');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+});
+
+/* ======================================================
+   AI PROMPT
+====================================================== */
+g('aiBtn').addEventListener('click',()=>{
+  const sessions=DB.sess();
+  if(!sessions.length){toast('No history to share');return;}
+  const byEx={};
+  for(const s of sessions){
+    if(!byEx[s.enm]) byEx[s.enm]={cat:s.ecat,sessions:[]};
+    byEx[s.enm].sessions.push(s);
+  }
+  const lines=[];
+  for(const nm in byEx){
+    const ex=byEx[nm];
+    lines.push('\n'+nm+' ('+ex.cat+'):');
+    for(const s of ex.sessions){
+      const d=new Date(s.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      const u=s.unit||'lbs';
+      let row='  '+d+' -- '+s.s+' sets x '+s.r+' reps @ '+s.w+u+'  [vol: '+s.vol+u+']';
+      if(s.mx) row+='  [1RM: '+s.mx+u+']';
+      lines.push(row);
+    }
+  }
+  const prompt='You are a knowledgeable personal trainer and strength coach. Below is my complete gym workout history exported from my tracking app. Please analyze it and provide:\n1. A brief summary of my training consistency and volume trends over time.\n2. Observations on strength progress per exercise (weight increases, volume trends, any plateaus).\n3. Any imbalances or gaps you notice (e.g. muscle groups being neglected).\n4. 3-5 specific, actionable recommendations for my next 4 weeks to keep progressing.\n5. One motivational observation about what I am doing well.\n\nKeep the tone direct and practical. Here is my workout history:\n'+lines.join('\n');
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(prompt).then(()=>{
+      g('aiBtn').textContent='COPIED!';
+      setTimeout(()=>{g('aiBtn').textContent='COPY';},2000);
+      hide('settMo');
+      toast('Prompt copied — paste into any AI');
+    }).catch(()=>showAiText(prompt));
+  } else {
+    showAiText(prompt);
+  }
+});
+
+function showAiText(text){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:flex;flex-direction:column;padding:20px;gap:12px;';
+  ov.innerHTML='<div style="font-family:var(--fd);font-size:14px;font-weight:800;letter-spacing:2px;color:var(--acc)">SELECT ALL &amp; COPY</div>'
+    +'<textarea style="flex:1;background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:14px;font-size:13px;color:var(--tx);font-family:var(--fm);line-height:1.5;resize:none;outline:none;" readonly></textarea>'
+    +'<button style="background:var(--acc);color:#fff;border:none;border-radius:12px;padding:18px;font-family:var(--fd);font-size:17px;font-weight:900;letter-spacing:3px;cursor:pointer;touch-action:manipulation;">DONE</button>';
+  document.body.appendChild(ov);
+  const ta=ov.querySelector('textarea');
+  ta.value=text;
+  ta.focus();ta.select();
+  ov.querySelector('button').addEventListener('click',()=>document.body.removeChild(ov));
 }
 
 /* ======================================================
