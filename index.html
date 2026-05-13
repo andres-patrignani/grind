@@ -171,6 +171,39 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 .pr-bar{flex:1;height:3px;background:var(--s2);border-radius:2px;overflow:hidden}
 .pr-fill{height:100%;background:var(--acc);border-radius:2px;transition:width .4s}
 .pr-lbl{font-size:10px;color:var(--tm);white-space:nowrap}
+
+/* TESTS */
+.tc{background:var(--s1);border:1px solid var(--br);border-radius:16px;padding:20px;margin-bottom:22px}
+.tc-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--br)}
+.tc-info{}
+.tc-nm{font-family:var(--fd);font-size:22px;font-weight:900;letter-spacing:1px;margin-bottom:2px}
+.tc-sub{font-size:11px;color:var(--tm);text-transform:uppercase;letter-spacing:1.5px}
+.tc-last{text-align:right;flex-shrink:0;margin-left:12px}
+.tc-val{font-family:var(--fm);font-size:21px}
+.tc-dt{font-size:10px;color:var(--tm);margin-top:2px}
+.rbadge{display:inline-block;padding:4px 11px;border-radius:20px;font-family:var(--fd);font-size:11px;font-weight:800;letter-spacing:1.5px;margin-top:5px;color:#000}
+.vo2-row{display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:10px;padding:12px 15px;margin-bottom:16px}
+.vo2-lbl{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--tm);font-family:var(--fd);font-weight:800}
+.vo2-val{font-family:var(--fm);font-size:18px}
+.time-row{display:flex;align-items:stretch;gap:8px;height:66px;margin-bottom:18px}
+.time-sep{font-family:var(--fm);font-size:28px;color:var(--td);display:flex;align-items:center;flex-shrink:0}
+.mini-inp{flex:1;background:var(--s1);border:2px solid var(--br);border-radius:13px;font-family:var(--fm);font-size:28px;color:var(--tx);text-align:center;outline:none;transition:border-color .15s;-moz-appearance:textfield;appearance:textfield;width:100%;padding:0 6px}
+.mini-inp:focus{border-color:var(--acc);background:var(--s2)}
+.mini-inp::-webkit-inner-spin-button,.mini-inp::-webkit-outer-spin-button{-webkit-appearance:none}
+.no-profile{background:var(--acc2);border:1px solid rgba(255,82,0,.3);border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--acc);line-height:1.5;text-align:center}
+.th-lbl{font-family:var(--fd);font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--tm);margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--br)}
+.tr-card{background:var(--s2);border-radius:10px;padding:13px 15px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.tr-body{flex:1;min-width:0}
+.tr-nm{font-family:var(--fd);font-size:15px;font-weight:800;letter-spacing:.5px;margin-bottom:2px}
+.tr-dt{font-size:11px;color:var(--tm)}
+.tr-right{text-align:right;flex-shrink:0}
+.tr-val{font-family:var(--fm);font-size:17px}
+.tr-badge{font-size:10px;font-weight:800;letter-spacing:1px;font-family:var(--fd);margin-top:3px}
+.tr-del{background:none;border:none;color:var(--td);font-size:14px;cursor:pointer;padding:6px;touch-action:manipulation;flex-shrink:0}
+.tr-del:active{color:#ef4444}
+.smi{width:70px;background:var(--s2);border:2px solid var(--br);border-radius:10px;padding:8px 10px;font-family:var(--fm);font-size:16px;color:var(--tx);text-align:center;outline:none;-moz-appearance:textfield;appearance:textfield}
+.smi:focus{border-color:var(--acc)}
+.smi::-webkit-inner-spin-button,.smi::-webkit-outer-spin-button{-webkit-appearance:none}
 </style>
 </head>
 <body>
@@ -183,6 +216,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
   <div class="tabs">
     <div class="tab on" data-tab="log">LOG</div>
     <div class="tab" data-tab="hist">HISTORY</div>
+    <div class="tab" data-tab="tests">TESTS</div>
   </div>
 </div>
 
@@ -289,6 +323,11 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
   </div>
 </div>
 
+<!-- TESTS VIEW -->
+<div class="view" id="view-tests">
+  <div id="testsContent"></div>
+</div>
+
 <!-- SETTINGS MODAL -->
 <div class="mo" id="settMo">
   <div class="mb">
@@ -310,6 +349,17 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
       </div>
     </div>
     <div class="srow">
+      <div><div class="slbl">Age</div><div class="sdsc">Used for fitness test ratings</div></div>
+      <input type="number" class="smi" id="cfgAge" min="10" max="99" placeholder="--" inputmode="numeric">
+    </div>
+    <div class="srow">
+      <div><div class="slbl">Gender</div><div class="sdsc">Used for fitness test ratings</div></div>
+      <div class="spill-g">
+        <div class="spill" id="cfgM">M</div>
+        <div class="spill" id="cfgF">F</div>
+      </div>
+    </div>
+    <div class="srow">
       <div><div class="slbl">Export history</div><div class="sdsc">Save a JSON backup file</div></div>
       <div class="spill" id="expBtn">EXPORT</div>
     </div>
@@ -327,6 +377,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
       <div class="spill danger" id="clrBtn">CLEAR</div>
     </div>
     <br>
+    <div style="text-align:center;padding:18px 0 4px;font-size:11px;color:var(--td);letter-spacing:1px">Created by Andres Patrignani &mdash; &copy; <span id="cpyr"></span></div>
     <button class="mcan" id="settClose">CLOSE</button>
   </div>
 </div>
@@ -448,9 +499,12 @@ const DB = {
   delSess(id){const a=this.sess().filter(s=>s.id!==id);localStorage.setItem('gt_sess',JSON.stringify(a))},
   lu(){const s=localStorage.getItem('gt_lu');return s?JSON.parse(s):{}},
   setLu(id,d){const lu=this.lu();lu[id]=d;localStorage.setItem('gt_lu',JSON.stringify(lu))},
-  cfg(){const s=localStorage.getItem('gt_cfg');return s?JSON.parse(s):{unit:'lbs',step:5}},
+  cfg(){const s=localStorage.getItem('gt_cfg');return s?JSON.parse(s):{unit:'lbs',step:5,age:null,gender:null}},
   saveCfg(c){localStorage.setItem('gt_cfg',JSON.stringify(c))},
-  clearSess(){localStorage.removeItem('gt_sess');localStorage.removeItem('gt_lu')}
+  clearSess(){localStorage.removeItem('gt_sess');localStorage.removeItem('gt_lu')},
+  tests(){const s=localStorage.getItem('gt_tests');return s?JSON.parse(s):[]},
+  addTest(t){const a=this.tests();a.push(t);localStorage.setItem('gt_tests',JSON.stringify(a))},
+  delTest(id){const a=this.tests().filter(t=>t.id!==id);localStorage.setItem('gt_tests',JSON.stringify(a))},
 };
 
 /* ======================================================
@@ -470,6 +524,7 @@ document.querySelectorAll('.tab').forEach(t=>{
     t.classList.add('on');
     document.getElementById('view-'+t.dataset.tab).classList.add('on');
     if(t.dataset.tab==='hist') renderHist();
+    if(t.dataset.tab==='tests') renderTests();
     hide('dd');
   });
 });
@@ -774,6 +829,9 @@ function updCfgUI(){
   g('st25').classList.toggle('on',cfg.step===2.5);
   g('st5').classList.toggle('on',cfg.step===5);
   g('st10').classList.toggle('on',cfg.step===10);
+  g('cfgAge').value=cfg.age||'';
+  g('cfgM').classList.toggle('on',cfg.gender==='m');
+  g('cfgF').classList.toggle('on',cfg.gender==='f');
 }
 
 g('uLbs').addEventListener('click',()=>{cfg.unit='lbs';DB.saveCfg(cfg);updCfgUI();if(sel)selectEx(sel)});
@@ -781,6 +839,9 @@ g('uKg').addEventListener('click',()=>{cfg.unit='kg';DB.saveCfg(cfg);updCfgUI();
 g('st25').addEventListener('click',()=>{cfg.step=2.5;DB.saveCfg(cfg);updCfgUI()});
 g('st5').addEventListener('click',()=>{cfg.step=5;DB.saveCfg(cfg);updCfgUI()});
 g('st10').addEventListener('click',()=>{cfg.step=10;DB.saveCfg(cfg);updCfgUI()});
+g('cfgAge').addEventListener('change',()=>{const v=parseInt(g('cfgAge').value);cfg.age=(v>=10&&v<=99)?v:null;DB.saveCfg(cfg);});
+g('cfgM').addEventListener('click',()=>{cfg.gender='m';DB.saveCfg(cfg);updCfgUI();});
+g('cfgF').addEventListener('click',()=>{cfg.gender='f';DB.saveCfg(cfg);updCfgUI();});
 
 let clrPending=false,clrTimer;
 g('clrBtn').addEventListener('click',()=>{
@@ -916,6 +977,184 @@ function showAiText(text){
 }
 
 /* ======================================================
+   TESTS — Cooper 12-min & Rowing 2000m
+   Completely isolated from strength logger.
+   Storage: gt_tests  [{id,type,value,ts,rating,vo2}]
+====================================================== */
+
+// ── Performance tables ──────────────────────────────
+// Cooper norms: [poor_min, belowAvg_min, avg_min, aboveAvg_min] meters
+// index 0=13-19, 1=20-29, 2=30-39, 3=40-49, 4=50-59, 5=60+
+const COOPER_NORMS = {
+  m:[[2100,2200,2400,2700],[1600,2200,2400,2800],[1500,1900,2300,2700],[1400,1700,2100,2500],[1300,1600,2000,2400],[1200,1400,1800,2200]],
+  f:[[1500,1600,1900,2000],[1300,1500,1700,1900],[1200,1400,1700,1900],[1000,1200,1500,1900],[900,1100,1500,1900],[800,1000,1400,1900]]
+};
+// Rowing 2000m norms: [excellent_max, good_max, avg_max, below_max] seconds
+// Base for under-30. Age offsets added separately.
+const ROW_BASE = {m:[390,420,465,540],f:[480,510,570,660]};
+const ROW_AGE_OFF = [0,0,15,30,50,70]; // index = age group
+
+const RATINGS = [
+  {label:'Excellent',   color:'#22C55E'},
+  {label:'Above Avg',   color:'#84CC16'},
+  {label:'Average',     color:'#EAB308'},
+  {label:'Below Avg',   color:'#F97316'},
+  {label:'Poor',        color:'#EF4444'}
+];
+
+function ageIdx(age){return age<20?0:age<30?1:age<40?2:age<50?3:age<60?4:5}
+
+function cooperRating(m,age,gender){
+  const g=gender==='f'?'f':'m';
+  const [p,b,a,ab]=COOPER_NORMS[g][ageIdx(age)];
+  if(m>=ab) return RATINGS[0];
+  if(m>=a)  return RATINGS[1];
+  if(m>=b)  return RATINGS[2];
+  if(m>=p)  return RATINGS[3];
+  return RATINGS[4];
+}
+
+function cooperVO2(m){return Math.max(0,((m-504.9)/44.73)).toFixed(1)}
+
+function rowingRating(secs,age,gender){
+  const g=gender==='f'?'f':'m';
+  const off=ROW_AGE_OFF[ageIdx(age)];
+  const [e,gd,av,bl]=ROW_BASE[g].map(t=>t+off);
+  if(secs<e)  return RATINGS[0];
+  if(secs<gd) return RATINGS[1];
+  if(secs<av) return RATINGS[2];
+  if(secs<bl) return RATINGS[3];
+  return RATINGS[4];
+}
+
+function fmtTime(secs){
+  const m=Math.floor(secs/60),s=secs%60;
+  return m+':'+(s<10?'0':'')+s;
+}
+
+function renderTests(){
+  const c=g('testsContent');
+  const tests=DB.tests().slice().reverse();
+  const hasProfile=cfg.age&&cfg.gender;
+
+  let h='';
+  if(!hasProfile){
+    h+='<div class="no-profile">Set your <b>age</b> and <b>gender</b> in Settings &#9881; to unlock performance ratings.</div>';
+  }
+
+  // ── Cooper card ──
+  const lastCooper=tests.find(t=>t.type==='cooper');
+  h+='<div class="tc">';
+  h+='<div class="tc-hdr"><div class="tc-info"><div class="tc-nm">Cooper Test</div><div class="tc-sub">12-min run &bull; distance in meters</div></div>';
+  if(lastCooper){
+    const rat=hasProfile?cooperRating(lastCooper.value,cfg.age,cfg.gender):null;
+    const dt=new Date(lastCooper.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    h+='<div class="tc-last"><div class="tc-val">'+lastCooper.value.toLocaleString()+' m</div>';
+    if(rat) h+='<div class="rbadge" style="background:'+rat.color+'">'+rat.label+'</div>';
+    h+='<div class="tc-dt">'+dt+'</div></div>';
+  } else {
+    h+='<div class="tc-last" style="color:var(--tm);font-size:13px">No results yet</div>';
+  }
+  h+='</div>';
+  // Input
+  h+='<div class="fld"><div class="flbl"><span>DISTANCE</span><span class="funit">METERS</span></div>';
+  h+='<div class="stpr"><div class="sbtn" id="coDec">&#8722;</div><input type="number" class="sval" id="coVal" value="'+(lastCooper?lastCooper.value:2000)+'" min="0" inputmode="numeric" step="10"><div class="sbtn" id="coInc">+</div></div></div>';
+  // VO2 preview
+  h+='<div class="vo2-row" id="coVo2row"><div class="vo2-lbl">Est. VO&#8322;max</div><div class="vo2-val" id="coVo2">--</div></div>';
+  h+='<button class="logbtn" id="coLog">LOG RESULT</button>';
+  h+='</div>';
+
+  // ── Rowing card ──
+  const lastRow=tests.find(t=>t.type==='rowing');
+  h+='<div class="tc">';
+  h+='<div class="tc-hdr"><div class="tc-info"><div class="tc-nm">Rowing 2000m</div><div class="tc-sub">Ergometer &bull; time to complete</div></div>';
+  if(lastRow){
+    const rat=hasProfile?rowingRating(lastRow.value,cfg.age,cfg.gender):null;
+    const dt=new Date(lastRow.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    h+='<div class="tc-last"><div class="tc-val">'+fmtTime(lastRow.value)+'</div>';
+    if(rat) h+='<div class="rbadge" style="background:'+rat.color+'">'+rat.label+'</div>';
+    h+='<div class="tc-dt">'+dt+'</div></div>';
+  } else {
+    h+='<div class="tc-last" style="color:var(--tm);font-size:13px">No results yet</div>';
+  }
+  h+='</div>';
+  // Time input (mm : ss)
+  h+='<div class="flbl" style="margin-bottom:8px"><span>TIME</span><span class="funit">MM : SS</span></div>';
+  const lm=lastRow?Math.floor(lastRow.value/60):7;
+  const ls=lastRow?lastRow.value%60:30;
+  h+='<div class="time-row"><input type="number" class="mini-inp" id="roMin" value="'+lm+'" min="0" max="99" inputmode="numeric" placeholder="mm"><div class="time-sep">:</div><input type="number" class="mini-inp" id="roSec" value="'+(ls<10?'0':'')+ls+'" min="0" max="59" inputmode="numeric" placeholder="ss"></div>';
+  h+='<button class="logbtn" id="roLog" style="margin-top:0">LOG RESULT</button>';
+  h+='</div>';
+
+  // ── History ──
+  if(tests.length){
+    h+='<div class="th-lbl">TEST HISTORY</div>';
+    for(const t of tests){
+      const dt=new Date(t.ts).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+      const isCooper=t.type==='cooper';
+      const rat=hasProfile?(isCooper?cooperRating(t.value,cfg.age,cfg.gender):rowingRating(t.value,cfg.age,cfg.gender)):null;
+      const valStr=isCooper?t.value.toLocaleString()+' m':fmtTime(t.value);
+      const sub=isCooper?'Cooper 12-min':'Rowing 2000m';
+      h+='<div class="tr-card">';
+      h+='<div class="tr-body"><div class="tr-nm">'+sub+'</div><div class="tr-dt">'+dt+'</div>';
+      if(isCooper&&t.vo2) h+='<div style="font-size:11px;color:var(--tm);margin-top:2px">VO&#8322;max est. '+t.vo2+' ml/kg/min</div>';
+      h+='</div>';
+      h+='<div class="tr-right"><div class="tr-val">'+valStr+'</div>';
+      if(rat) h+='<div class="tr-badge" style="color:'+rat.color+'">'+rat.label.toUpperCase()+'</div>';
+      h+='</div>';
+      h+='<button class="tr-del" data-tid="'+t.id+'">&#128465;</button>';
+      h+='</div>';
+    }
+  }
+
+  c.innerHTML=h;
+
+  // ── Cooper stepper + live VO2 ──
+  function updCoVO2(){
+    const v=parseInt(g('coVal').value)||0;
+    if(g('coVo2')) g('coVo2').textContent=v>504?cooperVO2(v)+' ml/kg/min':'--';
+  }
+  g('coDec').addEventListener('click',()=>{const i=g('coVal');i.value=Math.max(0,(parseInt(i.value)||0)-10);updCoVO2()});
+  g('coInc').addEventListener('click',()=>{const i=g('coVal');i.value=(parseInt(i.value)||0)+10;updCoVO2()});
+  g('coVal').addEventListener('input',updCoVO2);
+  updCoVO2();
+
+  // ── Cooper log ──
+  g('coLog').addEventListener('click',()=>{
+    const val=parseInt(g('coVal').value)||0;
+    if(val<100){toast('Enter a valid distance');return;}
+    const vo2=cooperVO2(val);
+    const rat=hasProfile?cooperRating(val,cfg.age,cfg.gender):null;
+    DB.addTest({id:Date.now().toString(),type:'cooper',value:val,vo2:parseFloat(vo2),ts:new Date().toISOString()});
+    const btn=g('coLog');btn.innerHTML='&#10003; SAVED!';btn.style.background='var(--ok)';
+    setTimeout(()=>{renderTests();},1200);
+    toast('Cooper result logged');
+  });
+
+  // ── Rowing log ──
+  g('roLog').addEventListener('click',()=>{
+    const mm=parseInt(g('roMin').value)||0;
+    let ss=parseInt(g('roSec').value)||0;
+    if(ss>59) ss=59;
+    const secs=mm*60+ss;
+    if(secs<60){toast('Enter a valid time');return;}
+    DB.addTest({id:Date.now().toString(),type:'rowing',value:secs,ts:new Date().toISOString()});
+    const btn=g('roLog');btn.innerHTML='&#10003; SAVED!';btn.style.background='var(--ok)';
+    setTimeout(()=>{renderTests();},1200);
+    toast('Rowing result logged');
+  });
+
+  // ── Delete ──
+  c.querySelectorAll('.tr-del').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      DB.delTest(btn.dataset.tid);
+      renderTests();
+      toast('Result removed');
+    });
+  });
+}
+
+/* ======================================================
    RECENT PILLS
 ====================================================== */
 function renderRecent(){
@@ -944,6 +1183,7 @@ function g(id){return document.getElementById(id)}
 function show(id){const el=g(id);if(el){if(el.classList.contains('mo'))el.classList.add('on');else el.style.display=''}}
 function hide(id){const el=g(id);if(el){if(el.classList.contains('mo'))el.classList.remove('on');else el.style.display='none'}}
 
+g('cpyr').textContent=new Date().getFullYear();
 renderRecent();
 </script>
 </body>
