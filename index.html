@@ -204,6 +204,12 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 .smi{width:70px;background:var(--s2);border:2px solid var(--br);border-radius:10px;padding:8px 10px;font-family:var(--fm);font-size:16px;color:var(--tx);text-align:center;outline:none;-moz-appearance:textfield;appearance:textfield}
 .smi:focus{border-color:var(--acc)}
 .smi::-webkit-inner-spin-button,.smi::-webkit-outer-spin-button{-webkit-appearance:none}
+
+/* COLOR THEMES */
+.clr-row{display:flex;gap:10px;align-items:center}
+.csw{width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;touch-action:manipulation;transition:border-color .15s,transform .12s;flex-shrink:0}
+.csw:active{transform:scale(.9)}
+.csw.on{border-color:#fff}
 </style>
 </head>
 <body>
@@ -377,6 +383,16 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
       <div class="spill danger" id="clrBtn">CLEAR</div>
     </div>
     <br>
+    <div class="srow">
+      <div><div class="slbl">Accent color</div><div class="sdsc">App highlight color</div></div>
+      <div class="clr-row">
+        <div class="csw on" id="clrOrange" style="background:#FF5200"  data-acc="#FF5200"  data-acc2="rgba(255,82,0,.14)"    title="Orange"></div>
+        <div class="csw"    id="clrPurple" style="background:#A855F7"  data-acc="#A855F7"  data-acc2="rgba(168,85,247,.14)"  title="K-State Purple"></div>
+        <div class="csw"    id="clrCyan"   style="background:#00C8FF"  data-acc="#00C8FF"  data-acc2="rgba(0,200,255,.14)"   title="Cyan"></div>
+        <div class="csw"    id="clrGreen"  style="background:#00E676"  data-acc="#00E676"  data-acc2="rgba(0,230,118,.14)"   title="Neon Green"></div>
+        <div class="csw"    id="clrPink"   style="background:#FF2D78"  data-acc="#FF2D78"  data-acc2="rgba(255,45,120,.14)"  title="Hot Pink"></div>
+      </div>
+    </div>
     <div style="text-align:center;padding:18px 0 4px;font-size:11px;color:var(--td);letter-spacing:1px">Created by Andres Patrignani &mdash; &copy; <span id="cpyr"></span></div>
     <button class="mcan" id="settClose">CLOSE</button>
   </div>
@@ -499,7 +515,7 @@ const DB = {
   delSess(id){const a=this.sess().filter(s=>s.id!==id);localStorage.setItem('gt_sess',JSON.stringify(a))},
   lu(){const s=localStorage.getItem('gt_lu');return s?JSON.parse(s):{}},
   setLu(id,d){const lu=this.lu();lu[id]=d;localStorage.setItem('gt_lu',JSON.stringify(lu))},
-  cfg(){const s=localStorage.getItem('gt_cfg');return s?JSON.parse(s):{unit:'lbs',step:5,age:null,gender:null}},
+  cfg(){const s=localStorage.getItem('gt_cfg');return s?JSON.parse(s):{unit:'lbs',step:5,age:null,gender:null,accent:'orange'}},
   saveCfg(c){localStorage.setItem('gt_cfg',JSON.stringify(c))},
   clearSess(){localStorage.removeItem('gt_sess');localStorage.removeItem('gt_lu')},
   tests(){const s=localStorage.getItem('gt_tests');return s?JSON.parse(s):[]},
@@ -513,6 +529,27 @@ const DB = {
 let sel=null, showMax=false, cfg=DB.cfg(), delTarget=null;
 
 function fw(n){return Number.isInteger(n)?n:parseFloat(n.toFixed(1))}
+
+/* ======================================================
+   ACCENT COLORS
+====================================================== */
+const ACCENTS = {
+  orange:{acc:'#FF5200', acc2:'rgba(255,82,0,.14)'},
+  purple:{acc:'#A855F7', acc2:'rgba(168,85,247,.14)'},
+  cyan:  {acc:'#00C8FF', acc2:'rgba(0,200,255,.14)'},
+  green: {acc:'#00E676', acc2:'rgba(0,230,118,.14)'},
+  pink:  {acc:'#FF2D78', acc2:'rgba(255,45,120,.14)'},
+};
+
+function applyAccent(key){
+  const t=ACCENTS[key]||ACCENTS.orange;
+  document.documentElement.style.setProperty('--acc', t.acc);
+  document.documentElement.style.setProperty('--acc2', t.acc2);
+  // sync swatch borders
+  document.querySelectorAll('.csw').forEach(s=>{
+    s.classList.toggle('on', s.id==='clr'+key.charAt(0).toUpperCase()+key.slice(1));
+  });
+}
 
 /* ======================================================
    TABS
@@ -688,7 +725,8 @@ g('logBtn').addEventListener('click',()=>{
   const btn=g('logBtn');
   btn.innerHTML='&#10003; SAVED!';
   btn.style.background='var(--ok)';
-  setTimeout(()=>{btn.innerHTML='LOG SET';btn.style.background='';renderRecent();},1400);
+  setTimeout(()=>{btn.innerHTML='LOG SET';btn.style.background='';applyAccent(cfg.accent||'orange');
+renderRecent();},1400);
   toast('&#10003; SET LOGGED');
 });
 
@@ -842,6 +880,16 @@ g('st10').addEventListener('click',()=>{cfg.step=10;DB.saveCfg(cfg);updCfgUI()})
 g('cfgAge').addEventListener('change',()=>{const v=parseInt(g('cfgAge').value);cfg.age=(v>=10&&v<=99)?v:null;DB.saveCfg(cfg);});
 g('cfgM').addEventListener('click',()=>{cfg.gender='m';DB.saveCfg(cfg);updCfgUI();});
 g('cfgF').addEventListener('click',()=>{cfg.gender='f';DB.saveCfg(cfg);updCfgUI();});
+// Accent color swatches
+document.querySelectorAll('.csw').forEach(sw=>{
+  sw.addEventListener('click',()=>{
+    const key=sw.id.replace('clr','').toLowerCase();
+    cfg.accent=key;
+    DB.saveCfg(cfg);
+    applyAccent(key);
+  });
+});
+
 
 let clrPending=false,clrTimer;
 g('clrBtn').addEventListener('click',()=>{
@@ -859,7 +907,8 @@ g('clrBtn').addEventListener('click',()=>{
     hide('exForm');
     show('noEx');
     g('srchIn').value='';
-    renderRecent();
+    applyAccent(cfg.accent||'orange');
+renderRecent();
     toast('History cleared');
   }
 });
@@ -916,7 +965,8 @@ g('impFile').addEventListener('change',e=>{
         localStorage.setItem('gt_lu',JSON.stringify(Object.assign({},data.lastUsed,lu)));
       }
       hide('settMo');
-      renderRecent();
+      applyAccent(cfg.accent||'orange');
+renderRecent();
       toast('Imported '+data.sessions.length+' sessions');
     } catch(err){
       toast('Invalid backup file');
@@ -1184,6 +1234,7 @@ function show(id){const el=g(id);if(el){if(el.classList.contains('mo'))el.classL
 function hide(id){const el=g(id);if(el){if(el.classList.contains('mo'))el.classList.remove('on');else el.style.display='none'}}
 
 g('cpyr').textContent=new Date().getFullYear();
+applyAccent(cfg.accent||'orange');
 renderRecent();
 </script>
 </body>
