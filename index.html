@@ -1127,7 +1127,7 @@ function renderTests(){
   const lastCooper=tests.find(t=>t.type==='cooper');
   h+='<div class="tc">';
   h+='<div class="tc-hdr"><div class="tc-info"><div class="tc-nm">Cooper Test</div><div class="tc-sub">12-min run &bull; distance in meters</div></div>';
-  h+='<div class="elite-ref">'+(cfg.gender==="f"?'Top 10% &#9792; (age 18): '+YOUNG_ELITE.cooper.f18.toLocaleString()+' m &middot; (age 21): '+YOUNG_ELITE.cooper.f21.toLocaleString()+' m':'Top 10% (age 18): '+YOUNG_ELITE.cooper.m18.toLocaleString()+' m &middot; (age 21): '+YOUNG_ELITE.cooper.m21.toLocaleString()+' m')+'</div>';
+  h+='<div class="elite-ref">'+(cfg.gender==="f"?'Top 10% &#9792; (age 21): '+YOUNG_ELITE.cooper.f21.toLocaleString()+' m':'Top 10% (age 21): '+YOUNG_ELITE.cooper.m21.toLocaleString()+' m')+'</div>';
   if(lastCooper){
     const rat=hasProfile?cooperRating(lastCooper.value,cfg.age,cfg.gender):null;
     const dt=new Date(lastCooper.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
@@ -1150,7 +1150,7 @@ function renderTests(){
   const lastRow=tests.find(t=>t.type==='rowing');
   h+='<div class="tc">';
   h+='<div class="tc-hdr"><div class="tc-info"><div class="tc-nm">Rowing 2000m</div><div class="tc-sub">Ergometer &bull; time to complete</div></div>';
-  h+='<div class="elite-ref">'+(cfg.gender==="f"?'Top 10% &#9792; (age 18): '+fmtTime(YOUNG_ELITE.rowing.f18)+' &middot; (age 21): '+fmtTime(YOUNG_ELITE.rowing.f21):'Top 10% (age 18): '+fmtTime(YOUNG_ELITE.rowing.m18)+' &middot; (age 21): '+fmtTime(YOUNG_ELITE.rowing.m21))+'</div>';
+  h+='<div class="elite-ref">'+(cfg.gender==="f"?'Top 10% &#9792; (age 21): '+fmtTime(YOUNG_ELITE.rowing.f21):'Top 10% (age 21): '+fmtTime(YOUNG_ELITE.rowing.m21))+'</div>';
   if(lastRow){
     const rat=hasProfile?rowingRating(lastRow.value,cfg.age,cfg.gender):null;
     const dt=new Date(lastRow.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
