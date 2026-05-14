@@ -344,7 +344,10 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 <!-- SETTINGS MODAL -->
 <div class="mo" id="settMo">
   <div class="mb">
-    <div class="mh"></div>
+    <div style="position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+      <div class="mh" style="margin:0"></div>
+      <button id="settClose" style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:var(--s2);border:1px solid var(--br);border-radius:8px;width:34px;height:34px;color:var(--tm);font-size:18px;line-height:1;cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;">&times;</button>
+    </div>
     <div class="mt">SETTINGS</div>
     <div class="srow">
       <div><div class="slbl">Weight unit</div><div class="sdsc">Pounds or Kilograms</div></div>
@@ -401,7 +404,6 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
       </div>
     </div>
     <div style="text-align:center;padding:18px 0 4px;font-size:11px;color:var(--td);letter-spacing:1px">Created by Andres Patrignani &mdash; &copy; <span id="cpyr"></span></div>
-    <button class="mcan" id="settClose">CLOSE</button>
   </div>
 </div>
 
