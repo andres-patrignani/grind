@@ -210,6 +210,11 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 .csw{width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;touch-action:manipulation;transition:border-color .15s,transform .12s;flex-shrink:0}
 .csw:active{transform:scale(.9)}
 .csw.on{border-color:#fff}
+
+/* 1RM HINT & ELITE REF */
+.rm-hint{font-size:12px;color:var(--td);text-align:center;padding:6px 0 14px;letter-spacing:.3px}
+.rm-hint b{color:var(--tm);font-weight:600}
+.elite-ref{font-size:11px;color:var(--td);margin-top:5px;letter-spacing:.2px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -296,6 +301,8 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
         </div>
       </div>
     </div>
+
+    <div id="rmHint" style="display:none" class="rm-hint"></div>
 
     <button class="logbtn" id="logBtn">LOG SET</button>
   </div>
@@ -649,8 +656,22 @@ function selectEx(ex){
   updVol();
   hide('noEx');
   show('exForm');
+  updRmHint();
 }
 
+
+function updRmHint(){
+  const el=g('rmHint');
+  if(!el)return;
+  const fromToggle=showMax&&g('mxFld')&&g('mxFld').style.display!=='none';
+  let mx=fromToggle?parseFloat(g('mxVal').value):0;
+  if(!mx&&sel){const lu=DB.lu()[sel.id];if(lu&&lu.mx)mx=lu.mx;}
+  if(!mx){el.style.display='none';return;}
+  const p65=Math.round(mx*0.65),p80=Math.round(mx*0.80);
+  const u=cfg.unit.toUpperCase();
+  el.innerHTML='<b>65%</b> '+p65+' '+u+' &nbsp;&middot;&nbsp; <b>80%</b> '+p80+' '+u+'<span style="color:var(--td);font-size:10px"> (of 1RM)</span>';
+  el.style.display='';
+}
 /* ======================================================
    STEPPERS
 ====================================================== */
@@ -675,6 +696,9 @@ mkStep('wDec','wInc','wVal',true);
 mkStep('rDec','rInc','rVal',false);
 mkStep('sDec','sInc','sVal',false);
 mkStep('mxDec','mxInc','mxVal',true);
+g('mxVal').addEventListener('input',updRmHint);
+g('mxInc').addEventListener('click',updRmHint);
+g('mxDec').addEventListener('click',updRmHint);
 
 function updVol(){
   const w=parseFloat(g('wVal').value)||0;
@@ -691,6 +715,7 @@ g('mxTog').addEventListener('click',()=>{
   showMax=!showMax;
   g('mxTr').classList.toggle('on',showMax);
   g('mxFld').style.display=showMax?'block':'none';
+  updRmHint();
   if(showMax){
     // Default max to current weight if not set
     const cur=parseFloat(g('wVal').value)||0;
@@ -1043,6 +1068,12 @@ const COOPER_NORMS = {
 // Base for under-30. Age offsets added separately.
 const ROW_BASE = {m:[390,420,465,540],f:[480,510,570,660]};
 const ROW_AGE_OFF = [0,0,15,30,50,70]; // index = age group
+// Elite top-10% benchmarks for age 18 and 21 (peak athletic reference)
+const YOUNG_ELITE = {
+  cooper:{m18:2900, m21:3000, f18:2200, f21:2300},
+  rowing: {m18:390,  m21:382,  f18:465,  f21:455}
+};
+
 
 const RATINGS = [
   {label:'Excellent',   color:'#22C55E'},
@@ -1096,6 +1127,7 @@ function renderTests(){
   const lastCooper=tests.find(t=>t.type==='cooper');
   h+='<div class="tc">';
   h+='<div class="tc-hdr"><div class="tc-info"><div class="tc-nm">Cooper Test</div><div class="tc-sub">12-min run &bull; distance in meters</div></div>';
+  h+='<div class="elite-ref">'+(cfg.gender==="f"?'Top 10% &#9792; (age 18): '+YOUNG_ELITE.cooper.f18.toLocaleString()+' m &middot; (age 21): '+YOUNG_ELITE.cooper.f21.toLocaleString()+' m':'Top 10% (age 18): '+YOUNG_ELITE.cooper.m18.toLocaleString()+' m &middot; (age 21): '+YOUNG_ELITE.cooper.m21.toLocaleString()+' m')+'</div>';
   if(lastCooper){
     const rat=hasProfile?cooperRating(lastCooper.value,cfg.age,cfg.gender):null;
     const dt=new Date(lastCooper.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
@@ -1118,6 +1150,7 @@ function renderTests(){
   const lastRow=tests.find(t=>t.type==='rowing');
   h+='<div class="tc">';
   h+='<div class="tc-hdr"><div class="tc-info"><div class="tc-nm">Rowing 2000m</div><div class="tc-sub">Ergometer &bull; time to complete</div></div>';
+  h+='<div class="elite-ref">'+(cfg.gender==="f"?'Top 10% &#9792; (age 18): '+fmtTime(YOUNG_ELITE.rowing.f18)+' &middot; (age 21): '+fmtTime(YOUNG_ELITE.rowing.f21):'Top 10% (age 18): '+fmtTime(YOUNG_ELITE.rowing.m18)+' &middot; (age 21): '+fmtTime(YOUNG_ELITE.rowing.m21))+'</div>';
   if(lastRow){
     const rat=hasProfile?rowingRating(lastRow.value,cfg.age,cfg.gender):null;
     const dt=new Date(lastRow.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
