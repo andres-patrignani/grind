@@ -214,7 +214,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 /* 1RM HINT & ELITE REF */
 .rm-hint{font-size:14px;color:var(--td);text-align:center;padding:6px 0 14px;letter-spacing:.3px}
 .rm-hint b{color:var(--tm);font-weight:600}
-.elite-ref{font-size:12px;color:var(--td);margin-top:5px;letter-spacing:.2px;line-height:1.5}
+.elite-ref{font-size:12px;color:var(--td);margin-top:6px;margin-bottom:14px;letter-spacing:.2px;line-height:1.8}
 </style>
 </head>
 <body>
@@ -392,7 +392,6 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
       <div><div class="slbl">Clear session history</div><div class="sdsc">Removes all logged sessions</div></div>
       <div class="spill danger" id="clrBtn">CLEAR</div>
     </div>
-    <br>
     <div class="srow">
       <div><div class="slbl">Accent color</div><div class="sdsc">App highlight color</div></div>
       <div class="clr-row">
@@ -403,6 +402,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
         <div class="csw"    id="clrPink"   style="background:#FF2D78"  data-acc="#FF2D78"  data-acc2="rgba(255,45,120,.14)"  title="Hot Pink"></div>
       </div>
     </div>
+    <div style="text-align:center;padding:2px 0 10px;font-size:11px;color:var(--td);letter-spacing:1px;opacity:.7">App version 1.0</div>
     <div style="text-align:center;padding:18px 0 4px;font-size:11px;color:var(--td);letter-spacing:1px">Created by Andres Patrignani &mdash; &copy; <span id="cpyr"></span></div>
   </div>
 </div>
@@ -793,7 +793,7 @@ function renderHist(){
       // Compute PR: is this the max weight for this exercise?
       const allForEx=DB.sess().filter(x=>x.eid===s.eid);
       const maxW=Math.max(...allForEx.map(x=>x.w));
-      const isPR=s.w>=maxW&&allForEx.length>1;
+      const isPR=s.w>maxW&&allForEx.length>1;
       html+=`<div class="sc cat-${s.ecat||'crossfit'}">
         <div class="sc-nm">${s.enm.toUpperCase()}${isPR?'&nbsp;<span style="font-size:11px;color:var(--acc);background:var(--acc2);padding:2px 7px;border-radius:4px;letter-spacing:1px">PR &#9651;</span>':''}</div>
         <div class="sc-dt">${ds} &middot; ${ts}</div>
@@ -1076,6 +1076,11 @@ const YOUNG_ELITE = {
   rowing: {m18:390,  m21:382,  f18:465,  f21:455}
 };
 
+// Top-10% benchmarks by age group (same index as ageIdx)
+const TOP10_AGE = {
+  cooper:{m:[2900,3000,2850,2650,2450,2200], f:[2200,2100,2050,2000,1900,1850]},
+  rowing: {m:[390, 382, 397, 412, 432, 452],  f:[465, 455, 470, 485, 510, 535]}
+};
 
 const RATINGS = [
   {label:'Excellent',   color:'#22C55E'},
@@ -1128,8 +1133,7 @@ function renderTests(){
   // ── Cooper card ──
   const lastCooper=tests.find(t=>t.type==='cooper');
   h+='<div class="tc">';
-  h+='<div class="tc-hdr"><div class="tc-info"><div class="tc-nm">Cooper Test</div><div class="tc-sub">12-min run &bull; distance in meters</div></div>';
-  h+='<div class="elite-ref">'+(cfg.gender==="f"?'Top 10% &#9792; (age 21): '+YOUNG_ELITE.cooper.f21.toLocaleString()+' m':'Top 10% (age 21): '+YOUNG_ELITE.cooper.m21.toLocaleString()+' m')+'</div>';
+  h+='<div class="tc-hdr"><div class="tc-info"><div class="tc-nm">Cooper Test</div><div class="tc-sub">12-min run</div></div>';
   if(lastCooper){
     const rat=hasProfile?cooperRating(lastCooper.value,cfg.age,cfg.gender):null;
     const dt=new Date(lastCooper.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
@@ -1140,6 +1144,7 @@ function renderTests(){
     h+='<div class="tc-last" style="color:var(--tm);font-size:13px">No results yet</div>';
   }
   h+='</div>';
+  h+='<div class="elite-ref">'+(cfg.gender==="f"?'Top 10% &#9792; (age 21): '+YOUNG_ELITE.cooper.f21.toLocaleString()+' m':'Top 10% (age 21): '+YOUNG_ELITE.cooper.m21.toLocaleString()+' m');if(hasProfile)h+='<br>'+(cfg.gender==="f"?'Top 10% &#9792; your age: '+TOP10_AGE.cooper.f[ageIdx(cfg.age)].toLocaleString()+' m':'Top 10% your age: '+TOP10_AGE.cooper.m[ageIdx(cfg.age)].toLocaleString()+' m');h+='</div>';
   // Input
   h+='<div class="fld"><div class="flbl"><span>DISTANCE</span><span class="funit">METERS</span></div>';
   h+='<div class="stpr"><div class="sbtn" id="coDec">&#8722;</div><input type="number" class="sval" id="coVal" value="'+(lastCooper?lastCooper.value:2000)+'" min="0" inputmode="numeric" step="10"><div class="sbtn" id="coInc">+</div></div></div>';
@@ -1151,8 +1156,7 @@ function renderTests(){
   // ── Rowing card ──
   const lastRow=tests.find(t=>t.type==='rowing');
   h+='<div class="tc">';
-  h+='<div class="tc-hdr"><div class="tc-info"><div class="tc-nm">Rowing 2000m</div><div class="tc-sub">Ergometer &bull; time to complete</div></div>';
-  h+='<div class="elite-ref">'+(cfg.gender==="f"?'Top 10% &#9792; (age 21): '+fmtTime(YOUNG_ELITE.rowing.f21):'Top 10% (age 21): '+fmtTime(YOUNG_ELITE.rowing.m21))+'</div>';
+  h+='<div class="tc-hdr"><div class="tc-info"><div class="tc-nm">Rowing 2000m</div><div class="tc-sub">Ergometer</div></div>';
   if(lastRow){
     const rat=hasProfile?rowingRating(lastRow.value,cfg.age,cfg.gender):null;
     const dt=new Date(lastRow.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
@@ -1163,6 +1167,7 @@ function renderTests(){
     h+='<div class="tc-last" style="color:var(--tm);font-size:13px">No results yet</div>';
   }
   h+='</div>';
+  h+='<div class="elite-ref">'+(cfg.gender==="f"?'Top 10% &#9792; (age 21): '+fmtTime(YOUNG_ELITE.rowing.f21):'Top 10% (age 21): '+fmtTime(YOUNG_ELITE.rowing.m21));if(hasProfile)h+='<br>'+(cfg.gender==="f"?'Top 10% &#9792; your age: '+fmtTime(TOP10_AGE.rowing.f[ageIdx(cfg.age)]):'Top 10% your age: '+fmtTime(TOP10_AGE.rowing.m[ageIdx(cfg.age)]));h+='</div>';
   // Time input (mm : ss)
   h+='<div class="flbl" style="margin-bottom:8px"><span>TIME</span><span class="funit">MM : SS</span></div>';
   const lm=lastRow?Math.floor(lastRow.value/60):7;
